@@ -1,0 +1,321 @@
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ✅ Montserrat (Google Fonts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/54fa248888.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root{
+      --card-bg:#f4f6ff;
+      --ctabtn:#0090ea;
+      --ctabtn-hover:#005991;
+
+      --badge-blue:#2563eb;   /* Nothelferkurs */
+      --badge-green:#22c55e;  /* > 10 Plätze */
+      --badge-orange:#ff8a00; /* < 9 Plätze */
+      --badge-red:#ef4444;    /* < 5 Plätze */
+
+      --text-dark:#0b0f1a;
+      --muted:#6b7280;
+    }
+
+    /* ✅ Montserrat als Standard */
+    body, .kurs-wrap, .kurs-card, .kurs-datecol, .kurs-timecol, .kurs-price, .kurs-btn, .kurs-badge, .kurs-note{
+      font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    }
+
+    .kurs-wrap{ max-width: 980px; margin: 0 auto; }
+
+    .kurs-card{
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 18px 18px;
+      border: 1px solid rgba(0,0,0,.05);
+      box-shadow: 0 8px 22px rgba(15, 23, 42, .06);
+      display:flex;
+      gap: 18px;
+      justify-content: space-between;
+      align-items: stretch;
+    }
+
+    .kurs-left{ flex: 1 1 auto; min-width: 0; }
+
+    .kurs-top{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      margin-bottom: 12px;
+    }
+
+    .kurs-badge{
+      font-size: 13px;
+      font-weight: 700;
+      color:#fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .badge-blue{ background: var(--badge-blue); }
+    .badge-green{ background: var(--badge-green); }
+    .badge-orange{ background: var(--badge-orange); }
+    .badge-red{ background: var(--badge-red); }
+    .badge-gray{ background: #a1a1aa; }
+
+    /* Sessions (Datum + Zeiten) */
+    .kurs-row{
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      gap: 18px;
+      align-items:start;
+      margin-bottom: 8px;
+    }
+    .kurs-datecol{
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+    .kurs-timecol{
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .kurs-note{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      color: var(--muted);
+      font-size: 13px;
+      margin: 8px 0 0 0;
+    }
+
+    .kurs-right{
+      flex: 0 0 190px;
+      display:flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-end;
+      text-align: right;
+      gap: 12px;
+    }
+
+    .kurs-price{
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--text-dark);
+      margin: 0;
+      line-height: 1.1;
+    }
+    .kurs-price small{
+      display:block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .kurs-btn{
+      background: var(--ctabtn);
+      border: none;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+      width: 120px;
+      transition: .15s ease;
+    }
+    .kurs-btn:hover{ background: var(--ctabtn-hover); transform: translateY(-1px); }
+
+    .kurs-btn:disabled{
+      background: #a1a1aa;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    @media (max-width: 768px){
+      .kurs-card{ flex-direction: column; }
+      .kurs-right{
+        flex: 1 1 auto;
+        align-items: stretch;
+        text-align: left;
+      }
+      .kurs-btn{ width: 100%; }
+      .kurs-row{
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+    }
+  </style>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<div class="container kurs-wrap">
+  <div id="kurs-liste" class="d-grid gap-3"></div>
+
+ <script>
+  function pad2(n){ return String(n).padStart(2,"0"); }
+
+  function formatDate(dateString) {
+    const d = new Date(dateString);
+    if (Number.isNaN(d.getTime())) return "";
+    return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
+  }
+
+  function weekdayDE(dateString){
+    const d = new Date(dateString);
+    if (Number.isNaN(d.getTime())) return "";
+    const days = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+    return days[d.getDay()];
+  }
+
+  function formatTime(timeString) {
+    return timeString ? timeString.slice(0, 5) : "";
+  }
+
+  function buildSessions(kurs){
+    const sessions = [];
+
+    const addSession = (tagKey, startKey, endKey) => {
+      const tag = kurs[tagKey];
+      if (!tag) return;
+
+      const d = new Date(tag);
+      if (Number.isNaN(d.getTime())) return;
+
+      const iso = d.toISOString().slice(0,10);
+      const dateText = `${weekdayDE(tag)}, ${formatDate(tag)}`.trim();
+      if (!dateText || dateText.includes("NaN")) return;
+
+      const s = formatTime(kurs[startKey]);
+      const e = formatTime(kurs[endKey]);
+      const timeText = (s && e) ? `${s} – ${e} Uhr` : "Zeit folgt";
+
+      sessions.push({ iso, dateText, timeText });
+    };
+
+    addSession("tag1", "start1", "end1");
+    addSession("tag2", "start2", "end2");
+    addSession("tag3", "start3", "end3");
+
+    return sessions;
+  }
+
+  function groupSessionsByDate(sessions){
+    const map = new Map();
+
+    sessions.forEach(s => {
+      if (!map.has(s.iso)) map.set(s.iso, { iso: s.iso, dateText: s.dateText, times: [] });
+      map.get(s.iso).times.push(s.timeText);
+    });
+
+    return Array.from(map.values()).sort((a,b) => a.iso.localeCompare(b.iso));
+  }
+
+  function renderGroupedSessions(groups){
+    return groups.map(g => `
+      <div class="kurs-row">
+        <div class="kurs-datecol">${g.dateText}</div>
+        <div class="kurs-timecol">
+          ${g.times.map(t => `<div><i class="fa-regular fa-clock me-2"></i>${t}</div>`).join("")}
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function badgeClassForFreeSeats(freie){
+    if (!Number.isFinite(freie) || freie <= 0) return "badge-gray";
+    if (freie <= 8) return "badge-orange";
+    if (freie <= 12) return "badge-green";
+    return "badge-green";
+  }
+
+  function badgeTextForFreeSeats(freie){
+    if (!Number.isFinite(freie) || freie <= 0) return "Ausgebucht";
+    if (freie <= 8) return "Wenige Plätze frei";
+    return "Freie Plätze verfügbar";
+  }
+
+  function zeigeDetails(kursId) {
+    window.location.href = `/nothelfer-kurs?kurs=${kursId}`;
+  }
+
+  function renderCard(kurs){
+    const freie = parseInt(kurs.verfuegbare_plaetze, 10);
+    const preis = kurs.preis ? `${kurs.preis} CHF` : "Preis auf Anfrage";
+
+    const sessions = buildSessions(kurs);
+    const groups = groupSessionsByDate(sessions);
+
+    const badgeRightText = badgeTextForFreeSeats(freie);
+    const freeBadgeClass = badgeClassForFreeSeats(freie);
+    const note = `Mit Lumi machst du den Nothelferkurs kompakt und ohne Stress.`;
+
+    return `
+      <div class="kurs-card">
+        <div class="kurs-left">
+          <div class="kurs-top">
+            <span class="kurs-badge ${freeBadgeClass}">${badgeRightText}</span>
+          </div>
+
+          ${renderGroupedSessions(groups)}
+
+          <p class="kurs-note">
+            <i class="fa-solid fa-circle-info mt-1"></i>
+            <span>${note}</span>
+          </p>
+        </div>
+
+        <div class="kurs-right">
+          <p class="kurs-price">
+            ${preis}
+            <small>Preis inkl. Ausweis</small>
+          </p>
+
+          ${
+            freie > 0
+              ? `<button class="kurs-btn" onclick="zeigeDetails(${kurs.id})">Anmelden</button>`
+              : `<button class="kurs-btn" disabled>Ausgebucht</button>`
+          }
+        </div>
+      </div>
+    `;
+  }
+
+  function ladeKarten() {
+    fetch("https://lumi-fahrschule.ch/nothelfer/kurse_abrufen.php")
+      .then((response) => {
+        if (!response.ok) throw new Error("Netzwerkantwort war nicht ok");
+        return response.json();
+      })
+      .then((kurse) => {
+        const liste = document.querySelector("#kurs-liste");
+        liste.innerHTML = "";
+
+        if (Array.isArray(kurse) && kurse.length > 0) {
+          kurse.forEach(kurs => {
+            liste.insertAdjacentHTML("beforeend", renderCard(kurs));
+          });
+        } else {
+          liste.innerHTML = `<div class="alert alert-light border">Keine Kurse verfügbar</div>`;
+        }
+      })
+      .catch((error) => {
+        console.error("Fehler beim Abrufen der Daten:", error);
+        document.querySelector("#kurs-liste").innerHTML =
+          `<div class="alert alert-danger">Kurse konnten gerade nicht geladen werden.</div>`;
+      });
+  }
+
+  document.addEventListener("DOMContentLoaded", ladeKarten);
+</script>
+</div>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kursbuchung</title>
+    <!-- Bootstrap für Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2>Buchung für den Kurs</h2>
+    <form action="https://lumi-fahrschule.ch/nothelfer/buchung_verarbeiten.php" method="POST">
+        <!-- Versteckte Kurs-ID, die aus der URL gelesen wird -->
+        <input type="hidden" name="kurs_id" id="kurs_id" value="">
+
+        <div class="mb-3">
+            <label for="anrede" class="form-label">Anrede</label>
+            <select class="form-select" id="anrede" name="anrede" required>
+                <option value="Herr">Herr</option>
+                <option value="Frau">Frau</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="vorname" class="form-label">Vorname</label>
+            <input type="text" class="form-control" id="vorname" name="vorname" required>
+        </div>
+        <div class="mb-3">
+            <label for="nachname" class="form-label">Nachname</label>
+            <input type="text" class="form-control" id="nachname" name="nachname" required>
+        </div>
+        <div class="mb-3">
+            <label for="geburtstag" class="form-label">Geburtstag</label>
+            <input type="date" class="form-control" id="geburtstag" name="geburtstag" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">E-Mail</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="mobile" class="form-label">Mobilnummer</label>
+            <input type="text" class="form-control" id="mobile" name="mobile" required>
+        </div>
+        <div class="mb-3">
+            <label for="strasse" class="form-label">Straße</label>
+            <input type="text" class="form-control" id="strasse" name="strasse" required>
+        </div>
+        <div class="mb-3">
+            <label for="nr" class="form-label">Hausnummer</label>
+            <input type="number" class="form-control" id="nr" name="nr" required>
+        </div>
+        <div class="mb-3">
+            <label for="plz" class="form-label">PLZ</label>
+            <input type="text" class="form-control" id="plz" name="plz" required>
+        </div>
+        <div class="mb-3">
+            <label for="ort" class="form-label">Ort</label>
+            <input type="text" class="form-control" id="ort" name="ort" required>
+        </div>
+<span>* Hiermit akzeptiere ich die unten stehenden AGBs und Datenschutzbestimmungen.</span> <br> <br>
+<button type="submit" class="btn btn-primary">Anmelden</button>
+    </form>
+</div>
+
+<script>
+// Funktion, um die Kurs-ID aus der URL zu extrahieren und im Formular zu setzen
+function setKursId() {
+    const params = new URLSearchParams(window.location.search);
+    const kursId = params.get('kurs');
+    if (kursId) {
+        document.getElementById('kurs_id').value = kursId;
+    } else {
+        location.href = '/nothelfer-kurse';
+    }
+}
+
+// Kurs-ID beim Laden der Seite setzen
+document.addEventListener('DOMContentLoaded', setKursId);
+</script>
+
+</body>
+</html>
